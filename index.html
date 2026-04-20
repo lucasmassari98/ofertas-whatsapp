@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCML Ofertas | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #0046be; --accent: #00c8ff; --bg: #0b0f1a; --card: #161b2c; --wpp: #25D366; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 40px 20px; gap: 30px; flex-wrap: wrap; }
+        .container { width: 100%; max-width: 550px; background: var(--card); padding: 30px 40px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); text-align: center; border: 1px solid #252d44; position: relative; }
+        .history-container { width: 100%; max-width: 380px; background: var(--card); padding: 30px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); border: 1px solid #252d44; display: none; }
+        .logo-header { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 15px; object-fit: cover; box-shadow: 0 0 20px rgba(0, 200, 255, 0.2); transition: 0.5s ease-in-out; }
+        .logo-header:hover { transform: rotate(10deg) scale(1.05); box-shadow: 0 0 30px rgba(0, 200, 255, 0.5); }
+        
+        h1 { font-size: 1.5rem; margin-bottom: 25px; margin-top: 0; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .tab-nav { display: flex; gap: 5px; margin-bottom: 25px; background: #0b0f1a; padding: 6px; border-radius: 12px; border: 1px solid #252d44; }
+        .tab-btn { flex: 1; background: transparent; color: #64748b; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-btn:hover { color: var(--accent); background: rgba(0, 200, 255, 0.05); transform: translateY(-2px); }
+        .tab-btn.active { background: #252d44; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transform: translateY(0); }
+        .tab-btn:active { transform: scale(0.95); }
+        .tab-content { display: none; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        input[type="text"], input[type="number"], select { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #252d44; background: #0b0f1a; color: white; font-size: 0.95rem; box-sizing: border-box; outline: none; margin-bottom: 15px; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(0, 200, 255, 0.2); transform: translateY(-2px); }
+        .cupom-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .cupom-row input { margin-bottom: 0; }
+        .flex-2 { flex: 2; } .flex-1 { flex: 1; }
+
+        .gerar-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); margin-top: 15px; }
+        .btn-azul { background: linear-gradient(135deg, var(--primary), var(--accent)); box-shadow: 0 4px 15px rgba(0, 200, 255, 0.2); }
+        .btn-azul:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 25px rgba(0, 200, 255, 0.4); }
+        .btn-azul:active { transform: translateY(2px) scale(0.96); box-shadow: 0 2px 10px rgba(0, 200, 255, 0.2); }
+        .btn-fogo { background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+        .btn-fogo:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 25px rgba(245, 158, 11, 0.5); }
+        .btn-fogo:active { transform: translateY(2px) scale(0.96); box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2); }
+
+        .copy-btn { background: #2c3e50; flex: 1; padding: 16px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: none; justify-content: center; align-items: center; gap: 8px; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .copy-btn:hover { background: #34495e; transform: translateY(-4px); box-shadow: 0 12px 20px rgba(0,0,0,0.4); }
+        .copy-btn:active { transform: translateY(2px) scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+
+        .wpp-btn { background: var(--wpp); flex: 1; padding: 16px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: none; justify-content: center; align-items: center; gap: 8px; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2); }
+        .wpp-btn:hover { background: #28e06d; transform: translateY(-4px); box-shadow: 0 12px 20px rgba(37, 211, 102, 0.4); }
+        .wpp-btn:active { transform: translateY(2px) scale(0.95); box-shadow: 0 2px 5px rgba(37, 211, 102, 0.2); }
+
+        /* MAGIA DO CENTRO: AQUI A IMAGEM FICA ALINHADA */
+        .paste-area { border: 2px dashed #334155; padding: 30px 20px; border-radius: 12px; cursor: pointer; color: #64748b; transition: all 0.3s ease; background: #0b0f1a; margin-bottom: 15px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .paste-area:hover { border-color: #f59e0b; color: white; background: rgba(245, 158, 11, 0.05); transform: translateY(-2px); }
+        .paste-area:active { transform: scale(0.98); }
+        .paste-area img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5); object-fit: contain; }
+
+        .radar-box { background: rgba(0, 200, 255, 0.05); padding: 20px; border-radius: 12px; border: 1px dashed var(--accent); text-align: left; transition: 0.3s; }
+        .radar-box:hover { box-shadow: 0 5px 15px rgba(0, 200, 255, 0.1); border-color: #00e1ff; }
+        .radar-title { color: var(--accent); font-weight: bold; font-size: 0.95rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .radar-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.9rem; cursor: pointer; padding: 5px; border-radius: 8px; transition: 0.2s; }
+        .radar-item:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .radar-item input[type="checkbox"] { width: 18px; height: 18px; margin: 0 10px 0 0; accent-color: var(--accent); cursor: pointer; }
+
+        .img-container { position: relative; margin: 30px auto; width: 280px; height: 280px; display: none; align-items: center; justify-content: center; border-radius: 50%; }
+        #prodPreview { max-width: 240px; max-height: 240px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.9); background: white; padding: 10px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
+        
+        .acoes-row { display: flex; gap: 15px; margin-top: 15px; }
+        .loading-box { display: none; margin: 20px 0; color: var(--accent); font-weight: bold; animation: pulse 1s infinite alternate; letter-spacing: 2px; }
+        @keyframes pulse { from { opacity: 0.5; transform: scale(0.98); } to { opacity: 1; transform: scale(1.02); text-shadow: 0 0 10px var(--accent); } }
+        textarea { width: 100%; height: 220px; background: #0b0f1a; border: 1px solid #334155; border-radius: 12px; color: #cbd5e1; padding: 15px; font-family: monospace; font-size: 0.95rem; resize: none; margin-top: 20px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 200, 255, 0.15); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="{{ url_for('static', filename='logo.jpg') }}" class="logo-header">
+    <h1>Painel LCML Ofertas</h1>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="abrirAba('aba-manual', this)"><i class="fa-solid fa-bolt"></i> Manual</button>
+        <button class="tab-btn" onclick="abrirAba('aba-cupons', this)"><i class="fa-solid fa-ticket"></i> Cupons</button>
+        <button class="tab-btn" onclick="abrirAba('aba-radar', this)"><i class="fa-solid fa-satellite-dish"></i> Radar</button>
+    </div>
+
+    <div id="aba-manual" class="tab-content active">
+        <input type="text" id="urlInput" placeholder="Cole o link do ML, Amazon ou Shopee..." autofocus onkeypress="if(event.key==='Enter') processar()">
+        
+        <div class="cupom-row">
+            <input type="text" id="cupomNome" class="flex-2" placeholder="Cupom (Se houver)">
+            <input type="number" id="cupomPct" class="flex-1" placeholder="% OFF" min="1" max="100">
+            <input type="number" id="cupomFixo" class="flex-1" placeholder="R$ OFF" min="1">
+        </div>
+        <div class="cupom-row">
+            <input type="number" id="cupomMin" class="flex-1" placeholder="Acima de R$ (Opcional)">
+            <input type="number" id="cupomMax" class="flex-1" placeholder="Máx desc. (Opcional)">
+        </div>
+        
+        <div class="cupom-row">
+            <input type="text" id="manualDesconto" class="flex-1" placeholder="Ex: 10% OFF no PIX">
+            <input type="text" id="manualParcela" class="flex-1" placeholder="Ex: 10x sem juros">
+        </div>
+
+        <button id="mainBtn" class="gerar-btn btn-azul" onclick="processar()"><i class="fa-solid fa-bolt"></i> GERAR MANUAL</button>
+        <div id="loader" class="loading-box">⚡ PROCESSANDO...</div>
+        <div id="imgBox" class="img-container"><img id="prodPreview" src=""></div>
+        <textarea id="output" readonly placeholder="A oferta aparecerá aqui..."></textarea>
+        
+        <div class="acoes-row">
+            <button id="copyBtn" class="copy-btn" onclick="copyMain()"><i class="fa-solid fa-copy"></i> COPIAR TEXTO</button>
+            <button id="wppBtn" class="wpp-btn" onclick="enviarWpp()"><i class="fa-brands fa-whatsapp"></i> ENVIAR OFICIAL</button>
+        </div>
+    </div>
+
+    <div id="aba-cupons" class="tab-content">
+        <select id="avulsoLoja">
+            <option value="Mercado Livre">Mercado Livre</option>
+            <option value="Amazon">Amazon</option>
+            <option value="Shopee">Shopee</option>
+            <option value="Kabum">KaBum</option>
+        </select>
+
+        <div class="cupom-row">
+            <input type="text" id="avulsoCodigo" class="flex-1" placeholder="Código (Ex: BEMVINDO)">
+            <input type="text" id="avulsoInfo" class="flex-2" placeholder="Regra (Ex: 10% no Site)">
+        </div>
+        <input type="text" id="avulsoLink" placeholder="Link para o site (Obrigatório)">
+        
+        <div class="paste-area" id="pasteArea" onclick="document.getElementById('avulsoImgFile').click()">
+            <i class="fa-regular fa-image" style="font-size: 2rem; margin-bottom: 10px;" id="pasteIcon"></i><br>
+            <span id="pasteText">Clique para anexar ou <b>Cole (Ctrl+V)</b> a imagem aqui</span>
+            <img id="previewAvulso" src="">
+        </div>
+        <input type="file" id="avulsoImgFile" accept="image/*" style="display: none;">
+        
+        <button id="btnCupom" class="gerar-btn btn-fogo" onclick="enviarCupomAvulso()"><i class="fa-solid fa-fire"></i> DISPARAR CUPOM NO WHATS</button>
+    </div>
+
+    <div id="aba-radar" class="tab-content">
+        <div class="radar-box">
+            <div class="radar-title"><i class="fa-solid fa-eye"></i> Fontes Ativas (O Fantasma)</div>
+            {% for nome, id in fontes.items() %}
+            <label class="radar-item">
+                <input type="checkbox" name="fontes_radar" value="{{ id }}" onchange="salvarFontesRadar()">
+                <span>{{ nome }}</span>
+            </label>
+            {% endfor %}
+            <div style="font-size: 0.75rem; color: #64748b; margin-top: 10px;">* Grupos marcados serão monitorados em tempo real.</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="history-container" id="historyPanel">
+    <div style="color: var(--accent); margin-bottom: 20px; font-weight: bold; font-size: 1.1rem;"><i class="fa-solid fa-clock-rotate-left"></i> ÚLTIMAS OFERTAS</div>
+    <div id="historyList"></div>
+</div>
+
+<script>
+    window.onload = function() { 
+        const radarSalvo = JSON.parse(localStorage.getItem('radarMemoria') || '[]');
+        document.querySelectorAll('input[name="fontes_radar"]').forEach(cb => {
+            if(radarSalvo.includes(cb.value)) { cb.checked = true; }
+        });
+
+        document.getElementById('cupomNome').value = localStorage.getItem('mem_cupomNome') || "";
+        document.getElementById('cupomPct').value = localStorage.getItem('mem_cupomPct') || "";
+        document.getElementById('cupomFixo').value = localStorage.getItem('mem_cupomFixo') || "";
+        document.getElementById('cupomMin').value = localStorage.getItem('mem_cupomMin') || "";
+        document.getElementById('cupomMax').value = localStorage.getItem('mem_cupomMax') || "";
+        document.getElementById('manualDesconto').value = localStorage.getItem('mem_manualDesconto') || "";
+        document.getElementById('manualParcela').value = localStorage.getItem('mem_manualParcela') || "";
+        
+        salvarFontesRadar(); 
+    };
+
+    const camposMemoria = ['cupomNome', 'cupomPct', 'cupomFixo', 'cupomMin', 'cupomMax', 'manualDesconto', 'manualParcela'];
+    camposMemoria.forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            localStorage.setItem('mem_' + id, this.value);
+        });
+    });
+
+    function abrirAba(abaId, elementoBotao) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(abaId).classList.add('active');
+        elementoBotao.classList.add('active');
+    }
+
+    let base64Avulso = ""; 
+    document.getElementById('avulsoImgFile').addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) processarImagemAnexada(e.target.files[0]);
+    });
+
+    document.addEventListener('paste', function(e) {
+        if (document.getElementById('aba-cupons').classList.contains('active')) {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    processarImagemAnexada(items[i].getAsFile());
+                    break;
+                }
+            }
+        }
+    });
+
+    function processarImagemAnexada(file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            base64Avulso = event.target.result;
+            document.getElementById('previewAvulso').src = base64Avulso;
+            document.getElementById('previewAvulso').style.display = 'block';
+            document.getElementById('pasteIcon').style.display = 'none';
+            document.getElementById('pasteText').innerHTML = '<b>Imagem pronta!</b> Clique para trocar.';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function salvarFontesRadar() {
+        const checkboxes = document.querySelectorAll('input[name="fontes_radar"]:checked');
+        const fontesAtivas = Array.from(checkboxes).map(cb => cb.value);
+        localStorage.setItem('radarMemoria', JSON.stringify(fontesAtivas));
+
+        await fetch('/configurar_fontes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fontes: fontesAtivas })
+        });
+    }
+
+    let ofertaAtualMsg = "";
+    let ofertaAtualImg = "";
+
+    async function processar() {
+        const urlInput = document.getElementById('urlInput');
+        const url = urlInput.value;
+        if (!url) return;
+
+        const cupomNome = document.getElementById('cupomNome').value;
+        const cupomPct = document.getElementById('cupomPct').value;
+        const cupomFixo = document.getElementById('cupomFixo').value;
+        const cupomMax = document.getElementById('cupomMax').value;
+        const cupomMin = document.getElementById('cupomMin').value;
+        const manualDesconto = document.getElementById('manualDesconto').value;
+        const manualParcela = document.getElementById('manualParcela').value;
+
+        document.getElementById('mainBtn').disabled = true;
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('imgBox').style.display = 'none';
+        document.getElementById('copyBtn').style.display = 'none';
+        document.getElementById('wppBtn').style.display = 'none';
+        document.getElementById('output').value = "";
+
+        const response = await fetch('/gerar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url, cupomNome, cupomPct, cupomFixo, cupomMax, cupomMin, manualDesconto, manualParcela })
+        });
+        const data = await response.json();
+        
+        document.getElementById('mainBtn').disabled = false;
+        document.getElementById('loader').style.display = 'none';
+        
+        if (data.mensagem) {
+            ofertaAtualMsg = data.mensagem;
+            ofertaAtualImg = data.imagem;
+
+            document.getElementById('output').value = data.mensagem;
+            document.getElementById('prodPreview').src = data.imagem;
+            document.getElementById('imgBox').style.display = 'flex';
+            document.getElementById('copyBtn').style.display = 'flex';
+            document.getElementById('wppBtn').style.display = 'flex';
+            
+            urlInput.value = ""; 
+            urlInput.focus();
+            atualizarHistorico();
+        }
+    }
+
+    async function enviarWpp() {
+        const btn = document.getElementById('wppBtn');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ENVIANDO...';
+        btn.disabled = true;
+
+        const response = await fetch('/enviar_wpp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mensagem: ofertaAtualMsg, imagem: ofertaAtualImg })
+        });
+        const data = await response.json();
+
+        if (data.sucesso) {
+            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> ENVIADO';
+            btn.style.background = '#10b981';
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-xmark"></i> ERRO!';
+            btn.style.background = '#ef4444';
+            alert("Erro ao enviar: " + data.erro);
+        }
+
+        setTimeout(() => { 
+            btn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> ENVIAR OFICIAL'; 
+            btn.style.background = 'var(--wpp)';
+            btn.disabled = false;
+        }, 3000);
+    }
+
+    async function enviarCupomAvulso() {
+        const btn = document.getElementById('btnCupom');
+        const loja = document.getElementById('avulsoLoja').value; 
+        const codigo = document.getElementById('avulsoCodigo').value;
+        const info = document.getElementById('avulsoInfo').value;
+        const link = document.getElementById('avulsoLink').value;
+
+        if(!codigo || !link) { alert("Preencha o Código e o Link!"); return; }
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> DISPARANDO...';
+        btn.disabled = true;
+
+        const res = await fetch('/enviar_cupom_avulso', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ loja, codigo, info, link, imagem: base64Avulso }) 
+        });
+        const data = await res.json();
+
+        if(data.sucesso) {
+            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> LANÇADO!';
+            btn.style.background = '#10b981';
+            
+            document.getElementById('avulsoCodigo').value = "";
+            document.getElementById('avulsoInfo').value = "";
+            document.getElementById('avulsoLink').value = "";
+            base64Avulso = "";
+            document.getElementById('previewAvulso').src = "";
+            document.getElementById('previewAvulso').style.display = 'none';
+            document.getElementById('pasteIcon').style.display = 'inline-block';
+            document.getElementById('pasteText').innerHTML = 'Clique para subir ou <b>Cole (Ctrl+V)</b> a imagem aqui';
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-xmark"></i> ERRO!';
+            alert("Erro ao enviar: " + data.erro);
+        }
+
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fa-solid fa-fire"></i> DISPARAR ALERTA';
+            btn.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+            btn.disabled = false;
+        }, 3000);
+    }
+
+    function copyMain() {
+        const t = document.getElementById('output'); t.select(); document.execCommand('copy');
+        const btn = document.getElementById('copyBtn'); btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIADO!';
+        btn.style.background = '#10b981';
+        setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> COPIAR TEXTO'; btn.style.background = '#2c3e50'; }, 2000);
+        document.getElementById('urlInput').focus();
+    }
+
+    function copiarDoHistorico(index) {
+        const t = document.getElementById('h_' + index); t.style.display = 'block'; t.select(); document.execCommand('copy'); t.style.display = 'none';
+        const btn = document.getElementById('btnHist_' + index); const textoOriginal = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>'; btn.style.background = '#059669';
+        setTimeout(() => { btn.innerHTML = textoOriginal; btn.style.background = '#10b981'; }, 2000);
+        document.getElementById('urlInput').focus();
+    }
+
+    async function atualizarHistorico() {
+        const res = await fetch('/historico');
+        const dados = await res.json();
+        const lista = document.getElementById('historyList');
+        if (dados.length > 0) {
+            document.getElementById('historyPanel').style.display = 'block';
+            lista.innerHTML = dados.map((o, i) => `
+                <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center; background:rgba(255,255,255,0.03); padding:15px; border-radius:15px; border:1px solid #252d44; transition: 0.3s;">
+                    <img src="${o.imagem}" style="width:60px; height:60px; border-radius:10px; object-fit:cover;">
+                    <div style="flex:1">
+                        <div style="font-size:0.85rem; font-weight:bold; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">${o.mensagem.split('\n')[0]}</div>
+                        <button id="btnHist_${i}" onclick="copiarDoHistorico('${i}')" style="background:#10b981; color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:bold; transition:0.2s;"><i class="fa-solid fa-copy"></i> Copiar</button>
+                    </div>
+                    <textarea id="h_${i}" style="display:none">${o.mensagem}</textarea>
+                </div>
+            `).join('');
+        }
+    }
+</script>
+</body>
+</html> 
